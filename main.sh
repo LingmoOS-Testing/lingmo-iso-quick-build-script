@@ -42,7 +42,7 @@ case $input in
 esac
 
 echo 'Installing dependencies:'
-apt install xorriso squashfs-tools -y
+apt install xorriso squashfs-tools debootstrap -y
 echo 'Dependencies installed.'
 echo '------'
 
