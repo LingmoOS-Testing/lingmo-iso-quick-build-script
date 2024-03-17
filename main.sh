@@ -1,112 +1,95 @@
 #!/bin/bash
+set -e
+
 PWD=`pwd`
 CD="cd"
 export WORK=`pwd`
 export CD="$PWD/$CD"
 export FORMAT=squashfs
-export FS_DIR=casper
+export FS_DIR=live
 
 echo "Welcome to QuarkOS build script!"
 echo "This system is based on Debian and PiscesDE. So please use Debain Host to run this script!"
-echo "WARNING! Please use bash to execute this script! e.g. sudo bash main.sh"
+echo "WARNING! Please use bash to execute this script! e.g. bash main.sh"
 
 echo "Now we are going to create working environment, continue?"
 
-read -r -p "Continue? [Y/n] " input
-
-case $input in
-    [yY][eE][sS]|[yY])
-        echo "------"
-		;;
-    *)
-		echo "Quitting."
-		exit 1
-		;;
-esac
+# Remove Exist files
+rm -rf ${CD}
+rm -rf ${WORK}/iso
+rm -rf ${WORK}/rootfs
 
 # Making dirs
-sudo mkdir -pv ${CD}/{${FS_DIR},boot/grub} ${WORK}/rootfs
+mkdir -pv ${CD}/{${FS_DIR},boot/grub} ${WORK}/rootfs
 
 # Install dependencies
 
 echo "The next step will install necessary dependencies for building."
-read -r -p "Continue? [Y/n] " input
-case $input in
-    [yY][eE][sS]|[yY])
-        echo "------"
-		;;
-    *)
-		echo "Quitting."
-		exit 1
-		;;
-esac
 
 echo 'Installing dependencies:'
-apt install xorriso squashfs-tools debootstrap -y
+apt install xorriso squashfs-tools debootstrap mtools -y
 echo 'Dependencies installed.'
 echo '------'
 
 # Creating base system
 echo "We are going to create base system. Press enter to continue or Ctrl+C to exit."
-read
 
-debootstrap --arch=amd64 bullseye ${WORK}/rootfs http://repo.huaweicloud.com/debian
+
+debootstrap --arch=amd64 trixie ${WORK}/rootfs http://repo.huaweicloud.com/debian
 
 # Change sources.
 
 rm -fv ${WORK}/rootfs/etc/apt/sources.list
 
-echo "deb http://repo.huaweicloud.com/debian/ bullseye main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ bullseye-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ bullseye-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb-src http://repo.huaweicloud.com/debian/ bullseye main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb-src http://repo.huaweicloud.com/debian/ bullseye-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb-src http://repo.huaweicloud.com/debian/ bullseye-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian-security/ bullseye-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb-src http://repo.huaweicloud.com/debian-security/ bullseye-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
 
 # Preparing new os
 echo "--------------------"
 echo "Now we are going to prepare for chroot."
 echo "In this step, some special devices will be mounted. So do not be panic. :)"
 echo "Press enter to continue."
-read
 
-for i in /etc/resolv.conf /etc/hosts /etc/hostname; do sudo cp -pv $i ${WORK}/rootfs/etc/; done
+
+for i in /etc/resolv.conf /etc/hosts /etc/hostname; do cp -pv $i ${WORK}/rootfs/etc/; done
 mount --bind /dev ${WORK}/rootfs/dev
 mount -t proc proc ${WORK}/rootfs/proc
 mount -t sysfs sysfs ${WORK}/rootfs/sys
 
 # Running apt update in new os
 echo 'Now running apt update, press enter to continue.'
-read
+
 
 chroot ${WORK}/rootfs /bin/bash -c "apt update"
 
 # Install some essential packages.
-echo "Now install some packages. Wait for 5 seconds."
-sleep 5
+echo "Now install some packages. "
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install linux-image-5.18.0-0.bpo.1-amd64 linux-headers-5.18.0-0.bpo.1-amd64 xorg sddm kwin-x11"
-
-# Building desktop environment.
-echo "Now we will build the desktop!"
-echo "But it is not working, skipped. haha. Press enter to continue."
-read
+cp -r /home/elysia/Projects/ISO/OSSofts ${WORK}/rootfs/tmp/
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/OSSofts/*.deb --no-install-recommends"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y xorg sddm git sudo kmod initramfs-tools adduser"
+rm -rf ${WORK}/rootfs/tmp/OSSofts
 
 # Install Packages Essential for live CD
 echo "Install Packages Essential for live CD. Press enter to continue."
-read
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install casper"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot"
+chroot ${WORK}/rootfs /usr/sbin/adduser --disabled-password --gecos "" lingmo
+echo 'lingmo:live' | chroot ${WORK}/rootfs chpasswd
 
 # Update initramfs in the new os
 echo "Update initramfs in the new OS. Press enter to continue."
-read
+
 
 cp -rv ./update-initramfs.sh ${WORK}/rootfs/tmp/update-initramfs.sh
 
-chroot ${WORK}/rootfs /tmp/update-initramfs.sh
+chroot ${WORK}/rootfs /bin/bash "/tmp/update-initramfs.sh"
 
 rm -rv ${WORK}/rootfs/tmp/update-initramfs.sh
 
@@ -128,32 +111,32 @@ echo "Clean all the extra log files. Wait 5 seconds."
 sleep 5
 
 chroot ${WORK}/rootfs /bin/bash -c "find /var/log -regex '.*?[0-9].*?' -exec rm -v {} \;"
-chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while read file;do cat /dev/null | tee $file ;done"
+chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while  file;do cat /dev/null | tee $file ;done"
 
 # Copy the kernel, the updated initrd and memtest prepared in the chroot
 echo "--------------------"
 echo "Now we are going to make livecd."
 echo "Following steps are going to prepare the cd tree. Press enter to continue."
-read
+
 
 export kversion=`cd ${WORK}/rootfs/boot && ls -1 vmlinuz-* | tail -1 | sed 's@vmlinuz-@@'`
-sudo cp -vp ${WORK}/rootfs/boot/vmlinuz-${kversion} ${CD}/${FS_DIR}/vmlinuz
-sudo cp -vp ${WORK}/rootfs/boot/initrd.img-${kversion} ${CD}/${FS_DIR}/initrd.img
-sudo cp -vp ${WORK}/rootfs/boot/memtest86+.bin ${CD}/boot
+cp -vp ${WORK}/rootfs/boot/vmlinuz-${kversion} ${CD}/${FS_DIR}/vmlinuz
+cp -vp ${WORK}/rootfs/boot/initrd.img-${kversion} ${CD}/${FS_DIR}/initrd.img
+# cp -vp ${WORK}/rootfs/boot/memtest86+.bin ${CD}/boot
 
 # Unmount bind mounted dirs
 echo "Unmount bind mounted dirs. Wait 2 seconds."
 sleep 2
 
-sudo umount ${WORK}/rootfs/proc
+umount ${WORK}/rootfs/proc
 
-sudo umount ${WORK}/rootfs/sys
+umount ${WORK}/rootfs/sys
 
-sudo umount ${WORK}/rootfs/dev
+umount ${WORK}/rootfs/dev
 
 # Convert the directory tree into a squashfs
 echo "Convert the directory tree into a squashfs. This will take some time to complete. Press enter to continue."
-read
+
 
 mksquashfs ${WORK}/rootfs ${CD}/${FS_DIR}/filesystem.${FORMAT} -noappend
 
@@ -169,14 +152,14 @@ find ${CD} -type f -print0 | xargs -0 md5sum | sed "s@${CD}@.@" | grep -v md5sum
 # Make Grub the bootloader of the CD
 echo "-------------------------"
 echo "Make Grub the bootloader of the CD. This will make this livecd bootable. Press enter to continue."
-read
 
-cp -cv grub.cfg ${CD}/boot/grub/grub.cfg
+
+cp -v grub.cfg ${CD}/boot/grub/grub.cfg
 sleep 2
 
 # Build the CD/DVD
 echo "Now Build the CD/DVD. Press enter to continue."
-read
+
 
 mkdir -pv ${WORK}/iso
 grub-mkrescue -o ${WORK}/iso/live-cd.iso ${CD}
