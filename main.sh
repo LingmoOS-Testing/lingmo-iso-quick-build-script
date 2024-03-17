@@ -82,6 +82,7 @@ echo "Install Packages Essential for live CD. Press enter to continue."
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot"
 chroot ${WORK}/rootfs /usr/sbin/adduser --disabled-password --gecos "" lingmo
 echo 'lingmo:live' | chroot ${WORK}/rootfs chpasswd
+chroot ${WORK}/rootfs /bin/bash -c 'echo "lingmo ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/lingmo'
 
 # Update initramfs in the new os
 echo "Update initramfs in the new OS. Press enter to continue."
@@ -107,11 +108,11 @@ chroot ${WORK}/rootfs /bin/bash -c "rm -fv /etc/resolv.conf"
 chroot ${WORK}/rootfs /bin/bash -c "rm -fv /etc/hostname"
 
 # Clean all the extra log files
-echo "Clean all the extra log files. Wait 5 seconds."
-sleep 5
+# echo "Clean all the extra log files. Wait 5 seconds."
+# sleep 5
 
-chroot ${WORK}/rootfs /bin/bash -c "find /var/log -regex '.*?[0-9].*?' -exec rm -v {} \;"
-chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while  file;do cat /dev/null | tee $file ;done"
+# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -regex '.*?[0-9].*?' -exec rm -v {} \;"
+# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while  file;do cat /dev/null | tee $file ;done"
 
 # Copy the kernel, the updated initrd and memtest prepared in the chroot
 echo "--------------------"
@@ -138,7 +139,7 @@ umount ${WORK}/rootfs/dev
 echo "Convert the directory tree into a squashfs. This will take some time to complete. Press enter to continue."
 
 
-mksquashfs ${WORK}/rootfs ${CD}/${FS_DIR}/filesystem.${FORMAT} -noappend
+mksquashfs ${WORK}/rootfs ${CD}/${FS_DIR}/filesystem.${FORMAT}
 
 echo "Make filesystem.size"
 sleep 1
