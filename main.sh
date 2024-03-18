@@ -71,9 +71,9 @@ chroot ${WORK}/rootfs /bin/bash -c "apt update"
 # Install some essential packages.
 echo "Now install some packages. "
 
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
 cp -r /home/elysia/Projects/ISO/OSSofts ${WORK}/rootfs/tmp/
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/OSSofts/*.deb --no-install-recommends"
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y xorg sddm git sudo kmod initramfs-tools adduser"
 rm -rf ${WORK}/rootfs/tmp/OSSofts
 
 # Install Packages Essential for live CD
