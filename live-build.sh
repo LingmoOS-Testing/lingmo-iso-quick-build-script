@@ -2,14 +2,14 @@
 set -e
 
 # Define work directory
-WORKDIR=~/live-build-workspace
-LIVE_BUILD_DIR="${WORKDIR}/quarkos-live"
+WORKDIR=${pwd}/live-build-workspace
+LIVE_BUILD_DIR="${WORKDIR}/lingmoos-live"
 
 # Create work directory if it doesn't exist
 mkdir -p "${LIVE_BUILD_DIR}"
 
 # Welcome message
-echo "Converting to live-build: QuarkOS build script!"
+echo "Welcome to LingmoOS build script!"
 
 # Start live-build
 cd "${LIVE_BUILD_DIR}"
@@ -47,8 +47,8 @@ chmod +x config/hooks/live/username_setup.hook.chroot
 
 # Add any local deb packages to be installed in your live build
 # Example: Copy local packages to config/packages.chroot/
-# mkdir -p config/packages.chroot/
-# cp /path/to/local/*.deb config/packages.chroot/
+mkdir -p config/packages.chroot/
+cp /home/elysia/Projects/ISO/OSSofts/*.deb config/packages.chroot/
 
 # Clean up before starting the build
 sudo lb clean
@@ -58,6 +58,6 @@ echo "Starting live-build process..."
 sudo lb build
 
 # Move built ISO to the working directory
-mv binary.hybrid.iso "${WORKDIR}/quarkos-live.iso"
+mv binary.hybrid.iso "${WORKDIR}/lingmoos-live.iso"
 
-echo "Live-build script completed! The ISO can be found at: ${WORKDIR}/quarkos-live.iso"
+echo "Live-build script completed! The ISO can be found at: ${WORKDIR}/lingmoos-live.iso"

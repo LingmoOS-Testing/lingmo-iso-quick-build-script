@@ -1,3 +1,6 @@
 iso
 cd
 rootfs
+Deb_to_pack
+download_grub
+.build

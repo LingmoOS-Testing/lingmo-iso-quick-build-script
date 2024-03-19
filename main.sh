@@ -2,11 +2,15 @@
 set -e
 
 PWD=`pwd`
-CD="cd"
+CDname="cd"
 export WORK=`pwd`
-export CD="$PWD/$CD"
+export CD="$PWD/$CDname"
 export FORMAT=squashfs
 export FS_DIR=live
+export DEB_TO_PACK_DIR=$PWD/Deb_to_pack
+export DEB_TO_INSTALL_IN_CHROOT=/home/elysia/Projects/ISO/OSSofts
+export ISO_CODENAME=polaris
+export LC_ALL=C
 
 echo "Welcome to QuarkOS build script!"
 echo "This system is based on Debian and PiscesDE. So please use Debain Host to run this script!"
@@ -18,16 +22,18 @@ echo "Now we are going to create working environment, continue?"
 rm -rf ${CD}
 rm -rf ${WORK}/iso
 rm -rf ${WORK}/rootfs
+rm -rf ${DEB_TO_PACK_DIR}
 
 # Making dirs
 mkdir -pv ${CD}/{${FS_DIR},boot/grub} ${WORK}/rootfs
+mkdir -pv ${DEB_TO_PACK_DIR}
 
 # Install dependencies
 
 echo "The next step will install necessary dependencies for building."
 
 echo 'Installing dependencies:'
-apt install xorriso squashfs-tools debootstrap mtools -y
+apt install fakeroot xorriso squashfs-tools debootstrap mtools -y
 echo 'Dependencies installed.'
 echo '------'
 
@@ -71,18 +77,18 @@ chroot ${WORK}/rootfs /bin/bash -c "apt update"
 # Install some essential packages.
 echo "Now install some packages. "
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
-cp -r /home/elysia/Projects/ISO/OSSofts ${WORK}/rootfs/tmp/
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/OSSofts/*.deb --no-install-recommends"
-rm -rf ${WORK}/rootfs/tmp/OSSofts
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
+cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
+rm -rf ${WORK}/rootfs/tmp/*.deb
 
 # Install Packages Essential for live CD
 echo "Install Packages Essential for live CD. Press enter to continue."
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot"
-chroot ${WORK}/rootfs /usr/sbin/adduser --disabled-password --gecos "" lingmo
-echo 'lingmo:live' | chroot ${WORK}/rootfs chpasswd
-chroot ${WORK}/rootfs /bin/bash -c 'echo "lingmo ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/lingmo'
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot live-config live-config-systemd"
+# chroot ${WORK}/rootfs /usr/sbin/adduser --disabled-password --gecos "" lingmo
+# echo 'lingmo:live' | chroot ${WORK}/rootfs chpasswd
+# chroot ${WORK}/rootfs /bin/bash -c 'echo "lingmo ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/lingmo'
 
 # Update initramfs in the new os
 echo "Update initramfs in the new OS. Press enter to continue."
@@ -100,6 +106,13 @@ sleep 5
 
 chroot ${WORK}/rootfs /bin/bash -c "apt-get clean"
 
+# Clean all the extra log files
+# echo "Clean all the extra log files. Wait 5 seconds."
+# sleep 5
+
+# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -regex '.*?[0-9].*?' -exec rm -v {} \;"
+# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while  file;do cat /dev/null | tee $file ;done"
+
 # Clean some dirs and files
 echo "Clean some dirs and files. Wait 5 seconds."
 sleep 5
@@ -107,12 +120,6 @@ sleep 5
 chroot ${WORK}/rootfs /bin/bash -c "rm -fv /etc/resolv.conf"
 chroot ${WORK}/rootfs /bin/bash -c "rm -fv /etc/hostname"
 
-# Clean all the extra log files
-# echo "Clean all the extra log files. Wait 5 seconds."
-# sleep 5
-
-# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -regex '.*?[0-9].*?' -exec rm -v {} \;"
-# chroot ${WORK}/rootfs /bin/bash -c "find /var/log -type f | while  file;do cat /dev/null | tee $file ;done"
 
 # Copy the kernel, the updated initrd and memtest prepared in the chroot
 echo "--------------------"
@@ -135,11 +142,42 @@ umount ${WORK}/rootfs/sys
 
 umount ${WORK}/rootfs/dev
 
+# Downlading grub packages
+echo "Downloading Grub"
+GRUB_DOWNLOAD_DIR=$PWD/download_grub
+rm -rf ${GRUB_DOWNLOAD_DIR}
+mkdir -p ${GRUB_DOWNLOAD_DIR}
+cd ${GRUB_DOWNLOAD_DIR}
+
+apt update && apt install -y apt-rdepends
+apt-get -y download $(apt-rdepends grub-efi grub-pc | grep -v "^ " | sed 's/debconf-2.0/debconf/g')
+
+mv -f ./*.deb ${DEB_TO_PACK_DIR}
+cd $PWD
+
+# Making iso repo
+echo "Making ISO Deb repo"
+apt install reprepro -y
+cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
+
+## Prepare structure
+mkdir -p ${CD}/conf
+cat << EOF > ${CD}/conf/distributions
+Codename: ${ISO_CODENAME}
+Architectures: amd64
+Components: main
+Description: LingmoOS ISO Packages
+EOF
+
+cd ${CD}
+reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
+cd $PWD
+
 # Convert the directory tree into a squashfs
 echo "Convert the directory tree into a squashfs. This will take some time to complete. Press enter to continue."
 
 
-mksquashfs ${WORK}/rootfs ${CD}/${FS_DIR}/filesystem.${FORMAT}
+fakeroot mksquashfs ${WORK}/rootfs ${CD}/${FS_DIR}/filesystem.${FORMAT}
 
 echo "Make filesystem.size"
 sleep 1
@@ -155,7 +193,7 @@ echo "-------------------------"
 echo "Make Grub the bootloader of the CD. This will make this livecd bootable. Press enter to continue."
 
 
-cp -v grub.cfg ${CD}/boot/grub/grub.cfg
+cp -v ${CD}/../grub.cfg ${CD}/boot/grub/grub.cfg
 sleep 2
 
 # Build the CD/DVD
@@ -163,7 +201,7 @@ echo "Now Build the CD/DVD. Press enter to continue."
 
 
 mkdir -pv ${WORK}/iso
-grub-mkrescue -o ${WORK}/iso/live-cd.iso ${CD}
+fakeroot grub-mkrescue -o ${WORK}/iso/live-cd.iso ${CD}
 
 
 echo "------------------------------"
