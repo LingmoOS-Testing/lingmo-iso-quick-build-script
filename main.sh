@@ -151,6 +151,7 @@ rm -rf ${GRUB_DOWNLOAD_DIR}
 mkdir -p ${GRUB_DOWNLOAD_DIR}
 cd ${GRUB_DOWNLOAD_DIR}
 
+dpkg --add-architecture i386
 apt update && apt install -y apt-rdepends
 apt-get -y download $(apt-rdepends grub-efi-amd64 grub-efi grub-efi-ia32 grub-pc shim-signed efibootmgr grub-efi-amd64-signed grub-efi-ia32-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
@@ -162,26 +163,13 @@ echo "Making ISO Deb repo"
 apt install reprepro -y
 cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
 
-# 重命名
-cd ${DEB_TO_PACK_DIR}/
-## 设置计数器
-counter=1
-## 遍历所有的*.deb文件
-for file in *.deb; do
-  #### 生成新文件名
-  new_name="${counter}.deb"
-  #### 重命名文件
-  mv "$file" "$new_name"
-  #### 计数器加一
-  ((counter++))
-done
 cd $script_dir
 
 ## Prepare structure
 mkdir -p ${CD}/conf
 cat << EOF > ${CD}/conf/distributions
 Codename: ${ISO_CODENAME}
-Architectures: amd64
+Architectures: amd64 i386
 Components: main
 Description: LingmoOS ISO Packages
 EOF
