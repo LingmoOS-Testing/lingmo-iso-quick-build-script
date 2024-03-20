@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-PWD=`pwd`
+script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 CDname="cd"
-export WORK=`pwd`
-export CD="$PWD/$CDname"
+export WORK=$script_dir
+export CD="$script_dir/$CDname"
 export FORMAT=squashfs
 export FS_DIR=live
-export DEB_TO_PACK_DIR=$PWD/Deb_to_pack
+export DEB_TO_PACK_DIR=$script_dir/Deb_to_pack
 export DEB_TO_INSTALL_IN_CHROOT=/home/elysia/Projects/ISO/OSSofts
 export ISO_CODENAME=polaris
 export LC_ALL=C
@@ -77,10 +77,15 @@ chroot ${WORK}/rootfs /bin/bash -c "apt update"
 # Install some essential packages.
 echo "Now install some packages. "
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
 cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
 rm -rf ${WORK}/rootfs/tmp/*.deb
+
+cat << EOF > ${WORK}/rootfs/etc/sddm.conf
+[Theme]
+Current=lingmo
+EOF
 
 # Install Packages Essential for live CD
 echo "Install Packages Essential for live CD. Press enter to continue."
@@ -144,7 +149,7 @@ umount ${WORK}/rootfs/dev
 
 # Downlading grub packages
 echo "Downloading Grub"
-GRUB_DOWNLOAD_DIR=$PWD/download_grub
+GRUB_DOWNLOAD_DIR=$script_dir/download_grub
 rm -rf ${GRUB_DOWNLOAD_DIR}
 mkdir -p ${GRUB_DOWNLOAD_DIR}
 cd ${GRUB_DOWNLOAD_DIR}
@@ -153,12 +158,27 @@ apt update && apt install -y apt-rdepends
 apt-get -y download $(apt-rdepends grub-efi grub-pc | grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
 mv -f ./*.deb ${DEB_TO_PACK_DIR}
-cd $PWD
+cd $script_dir
 
 # Making iso repo
 echo "Making ISO Deb repo"
 apt install reprepro -y
 cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
+
+# 重命名
+cd ${DEB_TO_PACK_DIR}/
+## 设置计数器
+counter=1
+## 遍历所有的*.deb文件
+for file in *.deb; do
+  #### 生成新文件名
+  new_name="${counter}.deb"
+  #### 重命名文件
+  mv "$file" "$new_name"
+  #### 计数器加一
+  ((counter++))
+done
+cd $script_dir
 
 ## Prepare structure
 mkdir -p ${CD}/conf
@@ -171,7 +191,7 @@ EOF
 
 cd ${CD}
 reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
-cd $PWD
+cd $script_dir
 
 # Convert the directory tree into a squashfs
 echo "Convert the directory tree into a squashfs. This will take some time to complete. Press enter to continue."
@@ -193,7 +213,7 @@ echo "-------------------------"
 echo "Make Grub the bootloader of the CD. This will make this livecd bootable. Press enter to continue."
 
 
-cp -v ${CD}/../grub.cfg ${CD}/boot/grub/grub.cfg
+cp -v $script_dir/grub.cfg ${CD}/boot/grub/grub.cfg
 sleep 2
 
 # Build the CD/DVD
@@ -201,7 +221,7 @@ echo "Now Build the CD/DVD. Press enter to continue."
 
 
 mkdir -pv ${WORK}/iso
-fakeroot grub-mkrescue -o ${WORK}/iso/live-cd.iso ${CD}
+fakeroot grub-mkrescue  -iso-level 3 -full-iso9660-filenames -o ${WORK}/iso/live-cd.iso ${CD}
 
 
 echo "------------------------------"
