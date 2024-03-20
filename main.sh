@@ -75,21 +75,6 @@ echo 'Now running apt update, press enter to continue.'
 
 chroot ${WORK}/rootfs /bin/bash -c "apt update"
 
-# Install some essential packages.
-echo "Now install some packages. "
-
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
-cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
-rm -rf ${WORK}/rootfs/tmp/*.deb
-
-cat << EOF > ${WORK}/rootfs/etc/sddm.conf
-[Theme]
-Current=lingmo
-[Autologin]
-User=lingmo
-EOF
-
 # Install Packages Essential for live CD
 echo "Install Packages Essential for live CD. Press enter to continue."
 
@@ -97,6 +82,15 @@ chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot live-config live-co
 # chroot ${WORK}/rootfs /usr/sbin/adduser --disabled-password --gecos "" lingmo
 # echo 'lingmo:live' | chroot ${WORK}/rootfs chpasswd
 # chroot ${WORK}/rootfs /bin/bash -c 'echo "lingmo ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/lingmo'
+
+
+# Install some essential packages.
+echo "Now install some OS packages. "
+
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
+cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
+rm -rf ${WORK}/rootfs/tmp/*.deb
 
 # Update initramfs in the new os
 echo "Update initramfs in the new OS. Press enter to continue."
@@ -158,7 +152,7 @@ mkdir -p ${GRUB_DOWNLOAD_DIR}
 cd ${GRUB_DOWNLOAD_DIR}
 
 apt update && apt install -y apt-rdepends
-apt-get -y download $(apt-rdepends grub-efi grub-pc | grep -v "^ " | sed 's/debconf-2.0/debconf/g')
+apt-get -y download $(apt-rdepends grub-efi-amd64 grub-efi grub-efi-ia32 grub-pc shim-signed efibootmgr grub-efi-amd64-signed grub-efi-ia32-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
 mv -f ./*.deb ${DEB_TO_PACK_DIR}
 cd $script_dir
