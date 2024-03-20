@@ -11,6 +11,7 @@ export DEB_TO_PACK_DIR=$script_dir/Deb_to_pack
 export DEB_TO_INSTALL_IN_CHROOT=/home/elysia/Projects/ISO/OSSofts
 export ISO_CODENAME=polaris
 export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Welcome to QuarkOS build script!"
 echo "This system is based on Debian and PiscesDE. So please use Debain Host to run this script!"
