@@ -85,6 +85,8 @@ rm -rf ${WORK}/rootfs/tmp/*.deb
 cat << EOF > ${WORK}/rootfs/etc/sddm.conf
 [Theme]
 Current=lingmo
+[Autologin]
+User=lingmo
 EOF
 
 # Install Packages Essential for live CD
