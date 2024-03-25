@@ -154,9 +154,8 @@ rm -rf ${GRUB_DOWNLOAD_DIR}
 mkdir -p ${GRUB_DOWNLOAD_DIR}
 cd ${GRUB_DOWNLOAD_DIR}
 
-dpkg --add-architecture i386
 apt update && apt install -y apt-rdepends
-apt-get -y download $(apt-rdepends grub-efi-amd64 grub-efi grub-efi-ia32 grub-pc shim-signed efibootmgr grub-efi-amd64-signed grub-efi-ia32-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
+apt-get -y download $(apt-rdepends grub-efi-arm64 grub-efi shim-signed efibootmgr grub-efi-arm64-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
 mv -f ./*.deb ${DEB_TO_PACK_DIR}
 cd $script_dir
