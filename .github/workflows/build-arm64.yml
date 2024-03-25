@@ -54,7 +54,7 @@ jobs:
             # no secrets are present in the container state or logs.
             install: |
               apt-get update -y
-              apt-get install -y equivs curl git devscripts lintian build-essential automake autotools-dev cmake g++
+              apt-get install fakeroot xorriso squashfs-tools debootstrap mtools -y
 
             # Produce a binary artifact and place it in the mounted volume
             run: |
