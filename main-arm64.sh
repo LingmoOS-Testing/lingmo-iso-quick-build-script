@@ -45,20 +45,20 @@ echo '------'
 echo "We are going to create base system. Press enter to continue or Ctrl+C to exit."
 
 
-debootstrap --arch=arm64 trixie ${WORK}/rootfs http://repo.huaweicloud.com/debian
+debootstrap --arch=arm64 trixie ${WORK}/rootfs http://deb.debian.org/debian
 
 # Change sources.
 
 rm -fv ${WORK}/rootfs/etc/apt/sources.list
 
-echo "deb http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
 
 # Preparing new os
 echo "--------------------"
