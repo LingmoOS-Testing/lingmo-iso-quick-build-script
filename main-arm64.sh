@@ -68,9 +68,7 @@ echo "Press enter to continue."
 
 
 for i in /etc/resolv.conf /etc/hosts /etc/hostname; do cp -pv $i ${WORK}/rootfs/etc/; done
-mount --bind /dev ${WORK}/rootfs/dev
-mount -t proc proc ${WORK}/rootfs/proc
-mount -t sysfs sysfs ${WORK}/rootfs/sys
+for i in dev proc sys; do mount --rbind /$i ${WORK}/rootfs/$i; done
 
 # Running apt update in new os
 echo 'Now running apt update, press enter to continue.'
@@ -141,11 +139,11 @@ cp -vp ${WORK}/rootfs/boot/initrd.img-${kversion} ${CD}/${FS_DIR}/initrd.img
 echo "Unmount bind mounted dirs. Wait 2 seconds."
 sleep 2
 
-umount ${WORK}/rootfs/proc
+umount -lf ${WORK}/rootfs/proc
 
-umount ${WORK}/rootfs/sys
+umount -lf ${WORK}/rootfs/sys
 
-umount ${WORK}/rootfs/dev
+umount -lf ${WORK}/rootfs/dev
 
 # Downlading grub packages
 echo "Downloading Grub"
