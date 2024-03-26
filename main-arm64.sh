@@ -169,7 +169,7 @@ cd $script_dir
 mkdir -p ${CD}/conf
 cat << EOF > ${CD}/conf/distributions
 Codename: ${ISO_CODENAME}
-Architectures: amd64 i386
+Architectures: arm64
 Components: main
 Description: LingmoOS ISO Packages
 EOF
