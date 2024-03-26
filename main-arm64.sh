@@ -68,7 +68,7 @@ echo "Press enter to continue."
 
 
 for i in /etc/resolv.conf /etc/hosts /etc/hostname; do cp -pv $i ${WORK}/rootfs/etc/; done
-for i in proc sys; do mount --rbind /$i ${WORK}/rootfs/$i; done
+# for i in proc sys; do mount --rbind /$i ${WORK}/rootfs/$i; done
 
 # Running apt update in new os
 echo 'Now running apt update, press enter to continue.'
@@ -88,7 +88,7 @@ chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot live-config live-co
 # Install some essential packages.
 echo "Now install some OS packages. "
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends linux-image-arm64 fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends linux-image-arm64 fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
 cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
 rm -rf ${WORK}/rootfs/tmp/*.deb
@@ -139,9 +139,9 @@ cp -vp ${WORK}/rootfs/boot/initrd.img-${kversion} ${CD}/${FS_DIR}/initrd.img
 echo "Unmount bind mounted dirs. Wait 2 seconds."
 sleep 2
 
-umount -lf ${WORK}/rootfs/proc
+# umount -lf ${WORK}/rootfs/proc
 
-umount -lf ${WORK}/rootfs/sys
+# umount -lf ${WORK}/rootfs/sys
 
 # umount -lf ${WORK}/rootfs/dev
 
