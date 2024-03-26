@@ -68,7 +68,7 @@ echo "Press enter to continue."
 
 
 for i in /etc/resolv.conf /etc/hosts /etc/hostname; do cp -pv $i ${WORK}/rootfs/etc/; done
-for i in dev proc sys; do mount --rbind /$i ${WORK}/rootfs/$i; done
+for i in proc sys; do mount --rbind /$i ${WORK}/rootfs/$i; done
 
 # Running apt update in new os
 echo 'Now running apt update, press enter to continue.'
@@ -143,7 +143,7 @@ umount -lf ${WORK}/rootfs/proc
 
 umount -lf ${WORK}/rootfs/sys
 
-umount -lf ${WORK}/rootfs/dev
+# umount -lf ${WORK}/rootfs/dev
 
 # Downlading grub packages
 echo "Downloading Grub"
