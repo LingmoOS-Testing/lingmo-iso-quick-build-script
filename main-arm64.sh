@@ -146,36 +146,36 @@ sleep 2
 # umount -lf ${WORK}/rootfs/dev
 
 # Downlading grub packages
-echo "Downloading Grub"
-GRUB_DOWNLOAD_DIR=$script_dir/download_grub
-rm -rf ${GRUB_DOWNLOAD_DIR}
-mkdir -p ${GRUB_DOWNLOAD_DIR}
-cd ${GRUB_DOWNLOAD_DIR}
+# echo "Downloading Grub"
+# GRUB_DOWNLOAD_DIR=$script_dir/download_grub
+# rm -rf ${GRUB_DOWNLOAD_DIR}
+# mkdir -p ${GRUB_DOWNLOAD_DIR}
+# cd ${GRUB_DOWNLOAD_DIR}
 
-apt update && apt install -y apt-rdepends
-apt-get -y download $(apt-rdepends grub-efi-arm64 grub-efi shim-signed efibootmgr grub-efi-arm64-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
+# apt update && apt install -y apt-rdepends
+# apt-get -y download $(apt-rdepends grub-efi-arm64 grub-efi shim-signed efibootmgr grub-efi-arm64-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
-mv -f ./*.deb ${DEB_TO_PACK_DIR}
-cd $script_dir
+# mv -f ./*.deb ${DEB_TO_PACK_DIR}
+# cd $script_dir
 
-# Making iso repo
-echo "Making ISO Deb repo"
-apt install reprepro -y
-cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
+# # Making iso repo
+# echo "Making ISO Deb repo"
+# apt install reprepro -y
+# cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
 
-cd $script_dir
+# cd $script_dir
 
-## Prepare structure
-mkdir -p ${CD}/conf
-cat << EOF > ${CD}/conf/distributions
-Codename: ${ISO_CODENAME}
-Architectures: arm64
-Components: main
-Description: LingmoOS ISO Packages
-EOF
+# ## Prepare structure
+# mkdir -p ${CD}/conf
+# cat << EOF > ${CD}/conf/distributions
+# Codename: ${ISO_CODENAME}
+# Architectures: arm64
+# Components: main
+# Description: LingmoOS ISO Packages
+# EOF
 
-cd ${CD}
-reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
+# cd ${CD}
+# reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
 cd $script_dir
 
 # Convert the directory tree into a squashfs
