@@ -88,7 +88,7 @@ chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot live-config live-co
 # Install some essential packages.
 echo "Now install some OS packages. "
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends linux-image-arm64 fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends grub-efi-arm64 linux-image-arm64 fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
 cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
 rm -rf ${WORK}/rootfs/tmp/*.deb
@@ -204,6 +204,7 @@ sleep 2
 # Build the CD/DVD
 echo "Now Build the CD/DVD. Press enter to continue."
 
+apt-get install -y grub-common
 
 mkdir -pv ${WORK}/iso
 fakeroot grub-mkrescue  -iso-level 3 -full-iso9660-filenames -o ${WORK}/iso/live-cd.iso ${CD}
