@@ -48,14 +48,14 @@ debootstrap --include=ca-certificates --arch=amd64 bookworm ${WORK}/rootfs http:
 
 rm -fv ${WORK}/rootfs/etc/apt/sources.list
 
-echo "deb http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://security.debian.org/debian-security trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://security.debian.org/debian-security trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
 
 echo "deb https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/devrepo polaris-devel main contrib non-free" >> ${WORK}/rootfs/etc/apt/sources.list.d/lingmo-rolling.list
 
