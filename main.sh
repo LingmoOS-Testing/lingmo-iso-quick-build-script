@@ -42,7 +42,7 @@ echo '------'
 echo "We are going to create base system. Press enter to continue or Ctrl+C to exit."
 
 
-debootstrap --arch=amd64 bookworm ${WORK}/rootfs http://deb.debian.org/debian --include ca-certificates
+debootstrap --include=ca-certificates --arch=amd64 bookworm ${WORK}/rootfs http://deb.debian.org/debian 
  
 # Change sources.
 
