@@ -48,14 +48,14 @@ debootstrap --include=ca-certificates --arch=amd64 bookworm ${WORK}/rootfs http:
 
 rm -fv ${WORK}/rootfs/etc/apt/sources.list
 
-echo "deb http://deb.debian.org/debian trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://deb.debian.org/debian trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://deb.debian.org/debian trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://deb.debian.org/debian trixie main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://deb.debian.org/debian trixie-updates main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://deb.debian.org/debian trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "deb http://security.debian.org/debian-security trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
-echo "# deb-src http://security.debian.org/debian-security trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie-updates main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian trixie-backports main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie-updates main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://deb.debian.org/debian trixie-backports main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "deb http://security.debian.org/debian-security trixie-security main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
+echo "# deb-src http://security.debian.org/debian-security trixie-security main non-free contrib non-free-firmware" >> ${WORK}/rootfs/etc/apt/sources.list
 
 echo "deb https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/devrepo polaris-devel main contrib non-free" >> ${WORK}/rootfs/etc/apt/sources.list.d/lingmo-rolling.list
 
@@ -96,7 +96,7 @@ echo "Now install some OS packages. "
 
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
 
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends dirmngr linux-image-amd64 linux-headers-amd64 software-properties-common codium kwin-x11 kwin-dev kscreen libkf5windowsystem-dev libxcb1-dev libxcb-shape0-dev libkf5networkmanagerqt-dev libkf5kio-dev sound-theme-freedesktop libx11-dev vim plymouth appmotor liblingmo lingmo lingmoui lingmo-base-common lingmo-core lingmo-calculator lingmo-cursor-themes lingmo-daemon lingmo-kwin-plugins lingmo-dock lingmo-gtk-themes lingmo-systemicons lingmo-launcher lingmo-filemanager lingmo-settings lingmo-terminal lingmo-wallpapers lingmo-ocr lingmo-qt-plugins lingmo-gtk-themes lingmo-screenlocker lingmo-screenshot lingmo-sddm-theme lingmo-statusbar lingmo-texteditor firmware-linux firmware-linux-free firmware-sof-signed intel-microcode amd64-microcode b43-fwcutter spice-webdavd gnome-disk-utility wpasupplicant network-manager-gnome modemmanager bluez orca brltty espeak-ng at-spi2-core mousetweaks speech-dispatcher speech-dispatcher-espeak-ng gparted open-vm-tools open-vm-tools-desktop qemu-guest-agent firmware-linux-nonfree"
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends dirmngr linux-image-amd64 linux-headers-amd64 software-properties-common kwin-x11 kwin-dev kscreen libkf5windowsystem-dev libxcb1-dev libxcb-shape0-dev libkf5networkmanagerqt-dev libkf5kio-dev sound-theme-freedesktop libx11-dev vim plymouth appmotor liblingmo lingmo lingmoui lingmo-base-common lingmo-core lingmo-calculator lingmo-cursor-themes lingmo-daemon lingmo-kwin-plugins lingmo-dock lingmo-gtk-themes lingmo-systemicons lingmo-launcher lingmo-filemanager lingmo-settings lingmo-terminal lingmo-wallpapers lingmo-ocr lingmo-qt-plugins lingmo-gtk-themes lingmo-screenlocker lingmo-screenshot lingmo-sddm-theme lingmo-statusbar lingmo-texteditor firmware-linux firmware-linux-free firmware-sof-signed intel-microcode amd64-microcode b43-fwcutter spice-webdavd gnome-disk-utility wpasupplicant network-manager-gnome modemmanager bluez orca brltty espeak-ng at-spi2-core mousetweaks speech-dispatcher speech-dispatcher-espeak-ng gparted open-vm-tools open-vm-tools-desktop qemu-guest-agent firmware-linux-nonfree firmware-atheros firmware-bnx2 firmware-bnx2x firmware-brcm80211 firmware-intel-sound firmware-cavium firmware-ipw2x00 firmware-iwlwifi firmware-libertas firmware-realtek firmware-b43-installer firmware-misc-nonfree firmware-myricom firmware-netronome firmware-netxen firmware-qcom-media firmware-qcom-soc firmware-qlogic firmware-samsung firmware-siano firmware-ti-connectivity firmware-realtek-rtl8723cs-bt firmware-zd1211 firmware-ast broadcom-sta-dkms"
 
 
 # Update initramfs in the new os
