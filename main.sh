@@ -42,7 +42,7 @@ echo '------'
 echo "We are going to create base system. Press enter to continue or Ctrl+C to exit."
 
 
-debootstrap --arch=amd64 testing ${WORK}/rootfs http://deb.debian.org/debian
+debootstrap --arch=amd64 bookworm ${WORK}/rootfs http://deb.debian.org/debian
  
 # Change sources.
 
@@ -81,6 +81,7 @@ echo 'Now running apt update, press enter to continue.'
 
 
 chroot ${WORK}/rootfs /bin/bash -c "apt update"
+chroot ${WORK}/rootfs /bin/bash -c "apt upgrade -y"
 
 # Install Packages Essential for live CD
 echo "Install Packages Essential for live CD. Press enter to continue."
