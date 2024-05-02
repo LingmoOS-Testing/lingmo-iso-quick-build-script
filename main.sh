@@ -42,8 +42,8 @@ echo '------'
 echo "We are going to create base system. Press enter to continue or Ctrl+C to exit."
 
 
-debootstrap --arch=amd64 trixie ${WORK}/rootfs http://repo.huaweicloud.com/debian
-
+debootstrap --arch=amd64 trixie ${WORK}/rootfs http://deb.debian.org/debian
+ 
 # Change sources.
 
 rm -fv ${WORK}/rootfs/etc/apt/sources.list
@@ -56,6 +56,13 @@ echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-updates main non-free
 echo "# deb-src http://repo.huaweicloud.com/debian/ trixie-backports main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
 echo "deb http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
 echo "# deb-src http://repo.huaweicloud.com/debian-security/ trixie-security main non-free contrib" >> ${WORK}/rootfs/etc/apt/sources.list
+
+echo "deb https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/devrepo lingmo-rolling main contrib non-free" >> ${WORK}/rootfs/etc/apt/sources.list.d/lingmo-rolling.list
+
+# Store GPG keys
+curl -L https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/public-file.key
+ -o ${WORK}/rootfs/etc/apt/trusted.gpg.d/lingmo-rolling.asc
+
 
 # Preparing new os
 echo "--------------------"
@@ -88,9 +95,101 @@ chroot ${WORK}/rootfs /bin/bash -c "apt install -y live-boot live-config live-co
 echo "Now install some OS packages. "
 
 chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends fonts-noto fonts-noto-cjk fonts-noto-cjk-extra xorg sddm git sudo kmod initramfs-tools adduser network-manager cryptsetup btrfs-progs dosfstools e2fsprogs grub-efi at-spi2-core chromium-common chromium-l10n locales squashfs-tools adwaita-icon-theme"
-cp -r ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${WORK}/rootfs/tmp/
-chroot ${WORK}/rootfs /bin/bash -c "apt install -y /tmp/*.deb --no-install-recommends"
-rm -rf ${WORK}/rootfs/tmp/*.deb
+chroot ${WORK}/rootfs /bin/bash -c "apt install -y --no-install-recommends \
+dirmngr \
+linux-image-amd64 \
+linux-headers-amd64  \
+software-properties-common \
+codium \
+kwin-x11 \
+kwin-dev \
+kscreen \
+libkf5windowsystem-dev \
+libxcb1-dev \
+libxcb-shape0-dev \
+libkf5networkmanagerqt-dev \
+libkf5kio-dev \
+sound-theme-freedesktop \
+libx11-dev \
+vim \
+plymouth \
+appmotor \
+liblingmo \
+lingmo \
+lingmoui \
+lingmo-base-common \
+lingmo-core \
+lingmo-calculator \
+lingmo-cursor-themes
+lingmo-daemon \
+lingmo-kwin-plugins \
+lingmo-dock \
+lingmo-gtk-themes \
+lingmo-systemicons \
+lingmo-launcher \
+lingmo-filemanager \
+lingmo-settings \
+lingmo-terminal \
+lingmo-wallpapers \
+lingmo-ocr \
+lingmo-qt-plugins \
+lingmo-gtk-themes \
+lingmo-screenlocker \
+lingmo-screenshot \
+lingmo-sddm-theme \
+lingmo-statusbar \
+lingmo-texteditor \
+firmware-linux \
+firmware-linux-free \
+firmware-sof-signed \
+intel-microcode \
+amd64-microcode \
+b43-fwcutter \
+spice-webdavd \
+gnome-disk-utility \
+wpasupplicant \
+network-manager-gnome
+modemmanager \
+bluez \
+orca \
+brltty \
+espeak-ng \
+at-spi2-core \
+mousetweaks \
+speech-dispatcher \
+speech-dispatcher-espeak-ng \
+gparted \
+open-vm-tools \
+open-vm-tools-desktop \
+qemu-guest-agent \
+firmware-linux-nonfree \
+firmware-atheros \
+firmware-bnx2 \
+firmware-bnx2x \
+firmware-brcm80211 \
+firmware-intel-sound \
+firmware-cavium \
+firmware-ipw2x00 \
+firmware-iwlwifi \
+firmware-libertas \
+firmware-realtek \
+firmware-b43-installer \
+firmware-misc-nonfree \
+firmware-myricom \
+firmware-netronome \
+firmware-netxen \
+firmware-qcom-media \
+firmware-qcom-soc \
+firmware-qlogic \
+firmware-samsung \
+firmware-siano \
+firmware-ti-connectivity \
+firmware-realtek-rtl8723cs-bt \
+firmware-zd1211 \
+firmware-ast \
+broadcom-sta-dkms \
+"
+
 
 # Update initramfs in the new os
 echo "Update initramfs in the new OS. Press enter to continue."
@@ -144,38 +243,38 @@ umount ${WORK}/rootfs/sys
 
 umount ${WORK}/rootfs/dev
 
-# Downlading grub packages
-echo "Downloading Grub"
-GRUB_DOWNLOAD_DIR=$script_dir/download_grub
-rm -rf ${GRUB_DOWNLOAD_DIR}
-mkdir -p ${GRUB_DOWNLOAD_DIR}
-cd ${GRUB_DOWNLOAD_DIR}
+# # Downlading grub packages
+# echo "Downloading Grub"
+# GRUB_DOWNLOAD_DIR=$script_dir/download_grub
+# rm -rf ${GRUB_DOWNLOAD_DIR}
+# mkdir -p ${GRUB_DOWNLOAD_DIR}
+# cd ${GRUB_DOWNLOAD_DIR}
 
-dpkg --add-architecture i386
-apt update && apt install -y apt-rdepends
-apt-get -y download $(apt-rdepends grub-efi-amd64 grub-efi grub-efi-ia32 grub-pc shim-signed efibootmgr grub-efi-amd64-signed grub-efi-ia32-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
+# dpkg --add-architecture i386
+# apt update && apt install -y apt-rdepends
+# apt-get -y download $(apt-rdepends grub-efi-amd64 grub-efi grub-efi-ia32 grub-pc shim-signed efibootmgr grub-efi-amd64-signed grub-efi-ia32-signed| grep -v "^ " | sed 's/debconf-2.0/debconf/g')
 
-mv -f ./*.deb ${DEB_TO_PACK_DIR}
-cd $script_dir
+# mv -f ./*.deb ${DEB_TO_PACK_DIR}
+# cd $script_dir
 
-# Making iso repo
-echo "Making ISO Deb repo"
-apt install reprepro -y
-cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
+# # Making iso repo
+# echo "Making ISO Deb repo"
+# apt install reprepro -y
+# cp -f ${DEB_TO_INSTALL_IN_CHROOT}/*.deb ${DEB_TO_PACK_DIR}/
 
-cd $script_dir
+# cd $script_dir
 
-## Prepare structure
-mkdir -p ${CD}/conf
-cat << EOF > ${CD}/conf/distributions
-Codename: ${ISO_CODENAME}
-Architectures: amd64 i386
-Components: main
-Description: LingmoOS ISO Packages
-EOF
+# ## Prepare structure
+# mkdir -p ${CD}/conf
+# cat << EOF > ${CD}/conf/distributions
+# Codename: ${ISO_CODENAME}
+# Architectures: amd64 i386
+# Components: main
+# Description: LingmoOS ISO Packages
+# EOF
 
-cd ${CD}
-reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
+# cd ${CD}
+# reprepro --delete includedeb ${ISO_CODENAME} ${DEB_TO_PACK_DIR}/*.deb
 cd $script_dir
 
 # Convert the directory tree into a squashfs
