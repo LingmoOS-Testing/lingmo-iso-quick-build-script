@@ -60,8 +60,7 @@ echo "# deb-src http://repo.huaweicloud.com/debian-security/ trixie-security mai
 echo "deb https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/devrepo lingmo-rolling main contrib non-free" >> ${WORK}/rootfs/etc/apt/sources.list.d/lingmo-rolling.list
 
 # Store GPG keys
-curl -L https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/public-file.key
- -o ${WORK}/rootfs/etc/apt/trusted.gpg.d/lingmo-rolling.asc
+curl -L https://raw.githubusercontent.com/LingmoOS-Testing/lingmo-rolling-mirror/master/public-file.key -o ${WORK}/rootfs/etc/apt/trusted.gpg.d/lingmo-rolling.asc
 
 
 # Preparing new os
