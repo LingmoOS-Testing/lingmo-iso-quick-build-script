@@ -13,8 +13,8 @@ export ISO_CODENAME=polaris
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-echo "Welcome to QuarkOS build script!"
-echo "This system is based on Debian and PiscesDE. So please use Debain Host to run this script!"
+echo "Welcome to LingmoOS build script!"
+echo "This system is based on Debian and LingmoDE. So please use Debain Host to run this script!"
 echo "WARNING! Please use bash to execute this script! e.g. bash main.sh"
 
 echo "Now we are going to create working environment, continue?"
